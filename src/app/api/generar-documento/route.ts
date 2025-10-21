@@ -82,7 +82,12 @@ export async function POST(request: NextRequest) {
     doc.render(data);
 
     // Generar el buffer del documento
-    const buffer = doc.getZip().generate({ type: "nodebuffer" });
+    const generatedBuffer = doc.getZip().generate({ type: "nodebuffer" });
+    
+    // Asegurar que sea un Buffer válido
+    const buffer = Buffer.isBuffer(generatedBuffer) 
+      ? generatedBuffer 
+      : Buffer.from(generatedBuffer as ArrayBuffer);
 
     // Generar nombre del archivo con fecha (siempre .docx)
     const nombreBase = plantillaNombre.replace('.docx', '').replace('.doc', '');
