@@ -81,25 +81,22 @@ export async function POST(request: NextRequest) {
     // Rellenar la plantilla con los datos
     doc.render(data);
 
-    // Generar el buffer del documento
-    const generatedBuffer = doc.getZip().generate({ type: "nodebuffer" });
-    
-    // Asegurar que sea un Buffer válido
-    const buffer = Buffer.isBuffer(generatedBuffer) 
-      ? generatedBuffer 
-      : Buffer.from(generatedBuffer as ArrayBuffer);
+    // Generar el documento como arraybuffer
+    const arrayBuffer = doc.getZip().generate({ 
+      type: "arraybuffer"
+    }) as ArrayBuffer;
 
     // Generar nombre del archivo con fecha (siempre .docx)
     const nombreBase = plantillaNombre.replace('.docx', '').replace('.doc', '');
     const fileName = `${nombreBase} ${obtenerFechaColombia(new Date())}.docx`;
 
     // Crear la respuesta con el archivo
-    return new NextResponse(buffer, {
+    return new Response(arrayBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'Content-Disposition': `attachment; filename="${fileName}"`,
-        'Content-Length': buffer.length.toString(),
+        'Content-Length': arrayBuffer.byteLength.toString(),
       },
     });
 
